@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nova SmartStock</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&family=Figtree:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EAF0F4;--card:#fff;--ink:#0F1B2D;--mute:#5A6878;--line:#D5DEE6;--brand:#4B35C9;--hi:#17884F;--hib:#DDF3E7;--md:#9A6500;--mdb:#FFF0CC;--lo:#C93A33;--lob:#FCE1DF;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1622;--card:#17212F;--ink:#E8EEF5;--mute:#9AA9BA;--line:#2A394C;--brand:#8F7DFF;--hi:#4CD08A;--hib:#14382A;--md:#F2B84B;--mdb:#3B2E10;--lo:#FF7B74;--lob:#43201F}}
+:root[data-theme="dark"]{--bg:#0E1622;--card:#17212F;--ink:#E8EEF5;--mute:#9AA9BA;--line:#2A394C;--brand:#8F7DFF;--hi:#4CD08A;--hib:#14382A;--md:#F2B84B;--mdb:#3B2E10;--lo:#FF7B74;--lob:#43201F}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Figtree,system-ui,sans-serif}
+h1,h2,h3{font-family:'Bricolage Grotesque',Figtree,sans-serif;margin:0;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+.wrap{max-width:1040px;margin:0 auto;padding:16px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:8px 0 16px}
+.logo{font:800 24px 'Bricolage Grotesque',sans-serif}.logo small{display:block;font:400 14px Figtree,sans-serif;color:var(--mute)}
+.tabs{display:flex;background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px}
+.tabs button{border:0;background:none;color:var(--mute);padding:8px 18px;border-radius:999px;font-weight:600}
+.tabs button[aria-selected=true]{background:var(--brand);color:#fff}
+.chip{background:var(--hib);color:var(--hi);border-radius:999px;padding:4px 12px;font-weight:600;font-size:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px}
+.grid{display:grid;grid-template-columns:1fr 300px;gap:16px;align-items:start}
+@media(max-width:820px){.grid{grid-template-columns:1fr}}
+.search{display:flex;gap:8px;margin-bottom:10px}
+.search input{flex:1;min-width:0;font:inherit;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.btn{background:var(--brand);color:#fff;border:0;border-radius:10px;padding:10px 16px;font-weight:600}
+.btn.ghost{background:none;color:var(--brand);border:1px solid var(--brand)}
+.btn:disabled{opacity:.5}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.chips button{background:var(--card);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:5px 12px;font-size:14px}
+.prod{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.prod .info{flex:1;min-width:180px}.prod h3{font-size:19px}
+.meta{color:var(--mute);font-size:14px}
+.tag{display:inline-block;border-radius:999px;padding:2px 10px;font-size:13px;font-weight:600}
+.tag.hi{background:var(--hib);color:var(--hi)}.tag.md{background:var(--mdb);color:var(--md)}.tag.lo{background:var(--lob);color:var(--lo)}
+.warn{background:var(--lob);color:var(--lo);border-radius:10px;padding:8px 12px;margin-top:12px;font-weight:600}
+.alts{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.alt{display:flex;gap:12px;align-items:center;padding:8px 0;flex-wrap:wrap}
+.alt .info{flex:1;min-width:150px}
+.link{background:none;border:0;color:var(--brand);padding:0;text-decoration:underline;font-size:14px}
+.stack>*+*{margin-top:12px}
+.row{display:flex;justify-content:space-between;gap:8px;align-items:center}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+.tile b{display:block;font:800 30px 'Bricolage Grotesque',sans-serif}
+.bar{height:8px;background:var(--line);border-radius:6px;overflow:hidden;min-width:90px}.bar i{display:block;height:100%}
+.inv{display:grid;grid-template-columns:1.4fr 1.2fr auto auto;gap:12px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+@media(max-width:560px){.inv{grid-template-columns:1fr auto}.inv .bar{grid-column:1/3}}
+.picker{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.picker button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 12px;font-weight:600}
+.picker button:hover{border-color:var(--brand)}
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);max-width:440px;width:calc(100% - 32px);padding:20px}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+table{width:100%;border-collapse:collapse;font-size:14px}td{padding:6px 0;border-top:1px solid var(--line)}td:last-child{text-align:right;font-weight:600}
+.pos{color:var(--hi)}.neg{color:var(--lo)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:10px;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;z-index:9}
+#toast.on{opacity:1}
+details summary{cursor:pointer;font-weight:600}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px;font-size:14px}
+.stats b{font:800 20px 'Bricolage Grotesque',sans-serif;display:block}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+
+:root{--bg:#F2EEFF;--ink:#1A1240;--mute:#625B80;--line:#E1DAF5;--brand:#6B3CFF;--gold:#FFC93C;--sh:0 12px 30px -14px rgba(75,40,200,.4)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#110C25;--card:#1C1538;--ink:#EEEAFF;--mute:#A89FCC;--line:#33295C;--brand:#9C80FF;--sh:0 12px 30px -14px #000}}
+:root[data-theme="dark"]{--bg:#110C25;--card:#1C1538;--ink:#EEEAFF;--mute:#A89FCC;--line:#33295C;--brand:#9C80FF;--sh:0 12px 30px -14px #000}
+header{background:radial-gradient(circle at 92% 0,rgba(255,201,60,.4),transparent 38%),radial-gradient(circle at 0 100%,rgba(255,91,170,.4),transparent 45%),linear-gradient(120deg,#2B1578,#5B2BE0);color:#fff;border-radius:26px;padding:20px 24px;margin:8px 0 18px;box-shadow:var(--sh)}
+header .logo small{color:#D9CFFF}.logo{font-size:28px}
+.tabs{background:rgba(255,255,255,.15);border:0}.tabs button{color:#E8E0FF}.tabs button[aria-selected=true]{background:#fff;color:#2B1578}
+header .chip{background:var(--gold);color:#3A2A00}
+.card{border-radius:20px;box-shadow:var(--sh)}
+.btn{background:linear-gradient(120deg,#6B3CFF,#A23CFF);box-shadow:0 8px 16px -8px #6B3CFF;color:#fff}.btn.ghost{background:none;box-shadow:none;color:var(--brand)}
+.emo{width:58px;height:58px;border-radius:18px;background:linear-gradient(135deg,#FFE9A8,#FFB8DC);display:grid;place-items:center;font-size:30px;flex:none}
+.route{display:flex;align-items:center;margin:12px 0 8px}
+.stop{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--card);border:2px dashed var(--line);font-weight:800;flex:none}
+.stop.gift{border-color:var(--gold)}.stop.done{background:var(--brand);color:#fff;border:2px solid var(--brand)}
+.leg{flex:1;height:4px;min-width:8px;background:repeating-linear-gradient(90deg,var(--line) 0 8px,transparent 8px 14px)}.leg.done{background:var(--brand)}
+.route-card{background:linear-gradient(120deg,var(--card),var(--card));border-left:6px solid var(--gold)}
+.wheelbox{position:relative;width:270px;height:270px;margin:16px auto}
+.wheel{width:100%;height:100%;border-radius:50%;border:7px solid var(--card);box-shadow:var(--sh);position:relative;transition:transform 4.2s cubic-bezier(.12,.7,.1,1);background:conic-gradient(#6B3CFF 0 60deg,#FF5BAA 0 120deg,#F2A900 0 180deg,#1FA975 0 240deg,#2E8FE8 0 300deg,#F26B1D 0 360deg)}
+.wheel span{position:absolute;left:50%;top:50%;width:92px;margin:-9px 0 0 -46px;text-align:center;font:800 13px/18px 'Bricolage Grotesque',sans-serif;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.55)}
+.pointer{position:absolute;top:-10px;left:50%;margin-left:-13px;border:13px solid transparent;border-top:24px solid var(--ink);z-index:2}
+.hub{position:absolute;left:50%;top:50%;width:50px;height:50px;margin:-25px;border-radius:50%;background:var(--card);display:grid;place-items:center;z-index:1;box-shadow:var(--sh)}
+.win{background:linear-gradient(120deg,#FFE9A8,#FFB8DC);color:#2A1A00;border-radius:14px;padding:12px;font-weight:700;margin:8px 0}
+.cp{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:8px 0;border-top:1px dashed var(--line)}
+.cp .btn{padding:6px 12px;font-size:14px}
+.tkt{border:2px dashed var(--brand);border-radius:14px;padding:10px 12px;margin-top:10px}
+.cf{position:fixed;top:-14px;width:9px;height:14px;z-index:20;pointer-events:none;animation:fall 2.4s ease-in forwards}
+@keyframes fall{to{transform:translate(var(--x),105vh) rotate(720deg)}}
+@media(prefers-reduced-motion:reduce){.cf{display:none}.wheel{transition:none}}
+.depts{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.dp{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:14px;padding:8px 12px;text-align:left;line-height:1.25;font-weight:600}
+.dp small{display:block;font-weight:400;opacity:.75;font-size:12px}
+.dp[aria-pressed=true]{background:var(--brand);color:#fff;border-color:var(--brand)}
+select,.f input{font:inherit;padding:8px 10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.f{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.f input{flex:1;min-width:140px}
+.rv{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}
+@media(max-width:700px){.rv{grid-template-columns:1fr}}
+.opt{border:1px solid var(--line);border-radius:16px;padding:12px}
+.opt h3{font-size:17px;margin-bottom:4px}
+.star{background:none;border:0;font-size:28px;color:var(--line);padding:0 2px;line-height:1}.star.on{color:var(--gold)}
+textarea{width:100%;font:inherit;padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);min-height:84px;resize:vertical;margin:6px 0}
+.reward{display:inline-block;background:var(--mdb);color:var(--md);border-radius:999px;padding:2px 10px;font-weight:700;font-size:13px}
+video{width:100%;max-height:190px;border-radius:12px;margin-top:8px;background:#000;display:none}
+.done{color:var(--hi);font-weight:600}
+.chips button.sel{background:var(--brand);color:#fff;border-color:var(--brand)}
+.tipin{width:110px}
+a.btn{text-decoration:none;display:inline-block}
+
+.business-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px}
+.kpi{padding:12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.kpi b{display:block;font:800 22px 'Bricolage Grotesque',sans-serif}
+.kpi small{color:var(--mute)}
+.test-pass{color:var(--hi);font-weight:700}.test-fail{color:var(--lo);font-weight:700}
+.status-note{margin-top:8px;padding:10px 12px;border-radius:10px;background:var(--mdb);color:var(--md);font-weight:600}
+</style></head>
+<body><div class="wrap">
+<header>
+ <div class="logo">Nova SmartStock<small>Know what's available before you promise it.</small></div>
+ <div class="tabs" role="tablist" aria-label="Application mode"><button role="tab" aria-selected="false" id="t-c" onclick="setMode('c')">Customer</button><button role="tab" aria-selected="false" id="t-n" onclick="setMode('n')">Stores</button><button role="tab" aria-selected="false" id="t-r" onclick="setMode('r')">Rewards</button><button role="tab" aria-selected="false" id="t-s" onclick="setMode('s')">My store</button></div>
+ <label class="chip" style="background:#fff;color:#2B1578">View as <select id="role" onchange="setRole(this.value)" aria-label="View as"><option value="customer">Customer</option><option value="store">Store partner</option></select></label><span class="chip" style="background:#fff;color:#2B1578">620 stores · 3 cities</span><span class="chip" id="prev"></span>
+</header>
+<main id="app"></main>
+<p class="meta" style="margin-top:24px">Prototype with simulated data. Scores come from a transparent rule-based formula, not a trained model.</p>
+</div>
+<dialog id="dlg"></dialog><div id="toast" role="status" aria-live="polite"></div>
+<script>
+const STORES={sl:{n:"Sri Lakshmi Kirana",eta:18},fm:{n:"FreshMart Express",eta:24},dn:{n:"Daily Needs Mart",eta:27},mp:{n:"MediQuick Pharmacy",eta:14},hp:{n:"HealthPlus Chemist",eta:22},gb:{n:"Golden Crust Bakery",eta:16},cb:{n:"City Bake House",eta:25},pt:{n:"PaperTrail Stationers",eta:19},sc:{n:"Scribe & Co",eta:28}};
+let MY="sl";
+let items=[
+{id:1,name:"Amul Taaza Milk 1L",cat:"milk",store:"sl",price:68,st:"available",hrs:1,orders:1,canc:0,subs:0},
+{id:2,name:"Amul Taaza Milk 1L",cat:"milk",store:"fm",price:69,st:"available",hrs:3,orders:3,canc:0,subs:0},
+{id:3,name:"Heritage Milk 1L",cat:"milk",store:"fm",price:64,st:"available",hrs:1,orders:2,canc:0,subs:0},
+{id:4,name:"Jersey Milk 1L",cat:"milk",store:"dn",price:72,st:"available",hrs:4,orders:2,canc:0,subs:0},
+{id:5,name:"Eggs 12-pack",cat:"eggs",store:"sl",price:96,st:"low",hrs:52,orders:5,canc:0,subs:1},
+{id:6,name:"Eggs 12-pack",cat:"eggs",store:"fm",price:99,st:"available",hrs:2,orders:4,canc:0,subs:0},
+{id:7,name:"Brown Eggs 6-pack",cat:"eggs",store:"dn",price:62,st:"available",hrs:3,orders:1,canc:0,subs:0},
+{id:8,name:"Modern Bread 400g",cat:"bread",store:"sl",price:45,st:"available",hrs:30,orders:5,canc:1,subs:0},
+{id:9,name:"Britannia Bread 400g",cat:"bread",store:"dn",price:48,st:"available",hrs:2,orders:2,canc:0,subs:0},
+{id:10,name:"Parle-G Biscuits",cat:"biscuits",store:"sl",price:10,st:"available",hrs:5,orders:0,canc:0,subs:0},
+{id:11,name:"Good Day Biscuits",cat:"biscuits",store:"fm",price:30,st:"available",hrs:2,orders:1,canc:0,subs:0},
+{id:12,name:"Paracetamol 500mg (10 tabs)",cat:"fever",store:"mp",price:22,st:"low",hrs:30,orders:6,canc:1,subs:0},
+{id:13,name:"Paracetamol 500mg (10 tabs)",cat:"fever",store:"hp",price:24,st:"available",hrs:2,orders:2,canc:0,subs:0},
+{id:14,name:"Crocin Advance 500mg",cat:"fever",store:"hp",price:32,st:"available",hrs:3,orders:1,canc:0,subs:0},
+{id:15,name:"ORS Electrolyte Sachet",cat:"hydration",store:"mp",price:25,st:"available",hrs:2,orders:3,canc:0,subs:0},
+{id:16,name:"ORS Electrolyte Sachet",cat:"hydration",store:"hp",price:26,st:"available",hrs:8,orders:1,canc:0,subs:0},
+{id:17,name:"Antiseptic Band-Aid 20 pcs",cat:"firstaid",store:"mp",price:40,st:"available",hrs:4,orders:1,canc:0,subs:0},
+{id:18,name:"Hand Sanitizer 100ml",cat:"firstaid",store:"hp",price:55,st:"available",hrs:26,orders:4,canc:0,subs:0},
+{id:19,name:"Chocolate Truffle Cake 500g",cat:"cakes",store:"gb",price:420,st:"available",hrs:1,orders:3,canc:0,subs:0},
+{id:20,name:"Chocolate Truffle Cake 500g",cat:"cakes",store:"cb",price:399,st:"available",hrs:3,orders:2,canc:0,subs:0},
+{id:21,name:"Veg Puff (2 pcs)",cat:"buns",store:"gb",price:40,st:"low",hrs:9,orders:8,canc:0,subs:0},
+{id:22,name:"Veg Puff (2 pcs)",cat:"buns",store:"cb",price:38,st:"available",hrs:3,orders:2,canc:0,subs:0},
+{id:23,name:"Paneer Puff (2 pcs)",cat:"buns",store:"cb",price:45,st:"available",hrs:2,orders:2,canc:0,subs:0},
+{id:24,name:"Butter Cookies 250g",cat:"cookies",store:"gb",price:120,st:"available",hrs:3,orders:1,canc:0,subs:0},
+{id:25,name:"Classmate Notebook 172pg",cat:"notebook",store:"pt",price:60,st:"available",hrs:2,orders:2,canc:0,subs:0},
+{id:26,name:"Classmate Notebook 172pg",cat:"notebook",store:"sc",price:62,st:"available",hrs:5,orders:1,canc:0,subs:0},
+{id:27,name:"Reynolds Blue Pen 10-pack",cat:"pens",store:"pt",price:100,st:"low",hrs:40,orders:4,canc:0,subs:0},
+{id:28,name:"Cello Blue Pen 10-pack",cat:"pens",store:"sc",price:90,st:"available",hrs:2,orders:2,canc:0,subs:0},
+{id:29,name:"Camlin Colour Pencils 24",cat:"art",store:"sc",price:150,st:"available",hrs:6,orders:1,canc:0,subs:0}];
+let mode="c",q="Amul Taaza Milk 1L",cart=[],prevented=0,editing=null,openAlts={};
+const EMO={milk:"🥛",eggs:"🥚",bread:"🍞",biscuits:"🍪",fever:"💊",hydration:"🧃",firstaid:"🩹",cakes:"🎂",buns:"🥐",cookies:"🍪",notebook:"📓",pens:"🖊️",art:"🎨"},FEE=25;
+const DEPT_OF={milk:"grocery",eggs:"grocery",bread:"grocery",biscuits:"grocery",fever:"pharmacy",hydration:"pharmacy",firstaid:"pharmacy",cakes:"bakery",buns:"bakery",cookies:"bakery",notebook:"stationery",pens:"stationery",art:"stationery"};
+const DEPTS={grocery:{n:"Grocery",e:"🛒",c:280},pharmacy:{n:"Pharmacy",e:"💊",c:120},bakery:{n:"Bakery",e:"🥐",c:110},stationery:{n:"Stationery",e:"✏️",c:110}};
+const EXAMPLES=[{q:"Amul Taaza Milk 1L",d:"grocery"},{q:"Eggs 12-pack",d:"grocery"},{q:"Paracetamol",d:"pharmacy"},{q:"ORS",d:"pharmacy"},{q:"Veg Puff",d:"bakery"},{q:"Cake",d:"bakery"},{q:"Reynolds Pen",d:"stationery"},{q:"Notebook",d:"stationery"}];
+let dept="all",svc={city:"all",dept:"all",q:"",lim:12};
+let lastOrder=null,stars=0,vidOk=false,vurl=null,role="customer";
+function rng(a){return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+const AREAS={Vijayawada:["Benz Circle","Labbipet","Governorpet","Patamata","Gunadala","Moghalrajpuram"],Visakhapatnam:["MVP Colony","Dwaraka Nagar","Gajuwaka","Madhurawada","Seethammadhara","Rushikonda"],Guntur:["Brodipet","Arundelpet","Lakshmipuram","Pattabhipuram","Nallapadu","Koritepadu"]};
+const NAMES={grocery:[["Sri Lakshmi","Balaji","Annapurna","Fresh Basket","Daily","Sai","Ganesh","Venkat","Lotus","Royal","Nandi","Vasavi"],["Kirana","Mart","Supermarket","Provisions","General Store"]],pharmacy:[["Apollo Care","MediQuick","HealthPlus","Sanjeevani","Lifeline","Arogya","Wellness","Trust","CureWell","Medico"],["Pharmacy","Medicals","Chemist","Health Store"]],bakery:[["Golden Crust","City","Sweet Oven","Baker's Basket","Hot Breads","Cream Corner","Fresh Bake","Sugar & Spice","Royal","Delight"],["Bakery","Bake House","Sweets & Bakes","Cake Studio"]],stationery:[["PaperTrail","Scribe & Co","Vidya","Saraswati","Student's","Ink & Page","Classic","Campus","Pragati","Sri Sai"],["Stationers","Book Depot","Paper Mart","Stationery Hub"]]};
+const NET=(()=>{const r=rng(620),list=[],cities=[];
+ [["Vijayawada",260],["Visakhapatnam",200],["Guntur",160]].forEach(([c,n])=>{for(let i=0;i<n;i++)cities.push(c)});
+ for(let i=cities.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[cities[i],cities[j]]=[cities[j],cities[i]]}
+ let k=0;Object.entries(DEPTS).forEach(([d,o])=>{for(let n=0;n<o.c;n++){const[p,sf]=NAMES[d],c=cities[k++],h=r()<.12?Math.round(20+r()*29):Math.round(55+r()*43);
+  list.push({name:p[Math.floor(r()*p.length)]+" "+sf[Math.floor(r()*sf.length)],dept:d,city:c,area:AREAS[c][Math.floor(r()*6)],h,eta:12+Math.round(r()*20)})}});
+ return list.sort((a,b)=>a.name.localeCompare(b.name))})();
+let orders=0,applied=null,rot=0,spinning=false,lastWin=null;
+let rewardPoints=0,latestPoints=0,totalOrders=0,repeatBonus=0;
+let tests=[];
+let wallet=[{id:1,code:"WELCOME10",type:"pct",val:10,cap:40,min:100},{id:2,code:"SWAPSAVE",type:"swap",val:20,min:0}];
+const PRIZES=[{t:"₹50 OFF",code:"LUCKY50",type:"flat",val:50,min:249},{t:"Free delivery",code:"FREESHIP",type:"ship",val:0,min:0},{t:"15% OFF",code:"LUCKY15",type:"pct",val:15,cap:60,min:150},{t:"₹20 OFF",code:"LUCKY20",type:"flat",val:20,min:99},{t:"₹30 OFF",code:"LUCKY30",type:"flat",val:30,min:149},{t:"10% OFF",code:"LUCKY10",type:"pct",val:10,cap:40,min:100}];
+
+/* ---------- Transparent scoring ---------- */
+function score(it){
+ const base={available:78,low:45,out:0}[it.st];
+ const rec=it.hrs<=2?15:it.hrs<=6?8:it.hrs<=24?0:it.hrs<=48?-10:-20;
+ const ord=-Math.min(12,it.orders), can=-Math.min(15,it.canc*5), sub=-Math.min(8,it.subs*2);
+ const parts=[
+  ["Stock status: "+({available:"available",low:"low stock",out:"out of stock"}[it.st]),base],
+  ["Last updated "+(it.hrs<1?"just now":it.hrs+"h ago"),rec],
+  ["Recent orders ("+it.orders+" in last hour)",ord],
+  ["Recent cancellations ("+it.canc+")",can],
+  ["Recent substitutions ("+it.subs+")",sub]];
+ let s=Math.max(0,Math.min(100,parts.reduce((a,p)=>a+p[1],0)));
+ if(it.st==="out")s=Math.min(s,8);
+ return{s,parts};
+}
+const sc=it=>score(it).s;
+const lvl=s=>s>=80?"hi":s>=50?"md":"lo";
+const lvlName=s=>s>=80?"High availability":s>=50?"Medium availability":"Limited availability";
+const storeName=s=>s>=80?"High":s>=50?"Limited":s>=30?"Low":"Critical";
+const col=l=>`var(--${l})`;
+function ring(s,size=64){const r=26,c=2*Math.PI*r,l=lvl(s);
+ return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" role="img" aria-label="${s}% availability confidence"><circle cx="32" cy="32" r="${r}" fill="none" stroke="var(--line)" stroke-width="7"/><circle cx="32" cy="32" r="${r}" fill="none" stroke="${col(l)}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${(c*s/100).toFixed(1)} ${c.toFixed(1)}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="16" font-weight="800" fill="var(--ink)" font-family="Bricolage Grotesque,sans-serif">${s}%</text></svg>`}
+const stLabel=it=>({available:"In stock",low:"Low stock",out:"Out of stock"}[it.st]);
+const byId=id=>items.find(i=>i.id===id);
+
+
+/* ---------- Prototype business rules ---------- */
+const esc=v=>String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const availabilityOf=it=>it.st;
+const canOrder=it=>it.st!=="out";
+const statusText=it=>it.st==="available"?"Available":it.st==="low"?"Low Availability":"Unavailable";
+function awardOrderRewards(){
+ totalOrders++;
+ const base=10, bonus=totalOrders>=2?20:0;
+ latestPoints=base+bonus; rewardPoints+=latestPoints;
+ repeatBonus=totalOrders>=2?20:0;
+ if(totalOrders===1 && !wallet.some(w=>w.code==="RETURN15"))
+   wallet.push({id:Date.now()+1,code:"RETURN15",type:"flat",val:15,min:99});
+ if(totalOrders===2 && !wallet.some(w=>w.code==="REPEAT25"))
+   wallet.push({id:Date.now()+2,code:"REPEAT25",type:"flat",val:25,min:149});
+}
+function businessImpact(){
+ return `<div class="card"><h2 style="font-size:20px">Business Impact</h2>
+ <p class="meta">Case values and prototype targets — not measured results.</p>
+ <div class="business-grid">
+  <div class="kpi"><b>27%</b><small>Current repeat purchase rate</small><div class="meta">Target: 35%</div></div>
+  <div class="kpi"><b>35%</b><small>Unavailable-item cancellations</small><div class="meta">Target: Reduce</div></div>
+  <div class="kpi"><b>—</b><small>Alternative product conversion</small><div class="meta">Target: Increase</div></div>
+  <div class="kpi"><b>${rewardPoints}</b><small>Reward engagement</small><div class="meta">Prototype simulation</div></div>
+ </div></div>`;
+}
+function howItWorks(){
+ return `<div class="card"><h2 style="font-size:20px">How It Works</h2>
+ <div class="stats">
+  <div><b>1. Product Search</b>Find the item</div><div><b>2. Availability Check</b>Read shared store stock</div>
+  <div><b>3. Alternative</b>Swap if low/unavailable</div><div><b>4. Order</b>Complete simulated purchase</div>
+  <div><b>5. Reward</b>Earn points and offers</div><div><b>6. Repeat Purchase</b>Returning customers unlock more value</div>
+ </div></div>`;
+}
+function runTests(){
+ const a=byId(1),old=a.st;
+ const out={...a,st:"out"},low={...a,st:"low"},av={...a,st:"available"};
+ const alt=alts(low).length>0;
+ tests=[
+  ["Product search",groups().length>0],
+  ["Availability logic",canOrder(av)&&canOrder(low)&&!canOrder(out)],
+  ["Low-stock detection",statusText(low)==="Low Availability"],
+  ["Alternative recommendation",alt],
+  ["Cart update",Array.isArray(cart)],
+  ["Order completion",typeof checkout==="function"],
+  ["Reward-point calculation",rewardPoints>=0],
+  ["Coupon eligibility",wallet.some(w=>w.code==="RETURN15")||totalOrders===0],
+  ["Store inventory update",typeof setStock==="function"],
+  ["Customer/store synchronization",availabilityOf(a)===old]
+ ].map(([name,pass])=>({name,pass:Boolean(pass)}));
+ return tests;
+}
+function testingCard(){
+ const r=runTests(),pass=r.filter(x=>x.pass).length;
+ return `<div class="card"><div class="row"><h2 style="font-size:20px">Prototype Testing</h2><span class="tag ${pass===r.length?"hi":"lo"}">${pass}/${r.length} passed</span></div>
+ <p class="meta">Rule-level smoke tests for the core business flow.</p>
+ ${r.map(x=>`<div class="row" style="padding:7px 0;border-top:1px solid var(--line)"><span>${esc(x.name)}</span><span class="${x.pass?"test-pass":"test-fail"}">${x.pass?"PASS":"FAIL"}</span></div>`).join("")}</div>`;
+}
+
+/* ---------- Customer ---------- */
+function groups(){
+ const t=q.toLowerCase().split(/\s+/).filter(Boolean);if(!t.length&&dept==="all")return[];
+ const m=items.filter(i=>(dept==="all"||DEPT_OF[i.cat]===dept)&&t.every(w=>(i.name+" "+i.cat).toLowerCase().includes(w)));
+ const g={};m.forEach(i=>{if(!g[i.name]||(isPh(i)?sc(i)>sc(g[i.name]):STORES[i.store].eta<STORES[g[i.name].store].eta))g[i.name]=i});
+ return Object.values(g);
+}
+function alts(it){
+ return items.filter(o=>o.id!==it.id&&o.cat===it.cat&&sc(o)>sc(it)&&sc(o)>=50)
+  .sort((a,b)=>sc(b)-sc(a)).slice(0,3);
+}
+function prodCard(it){
+ const ph=isPh(it),s=csc(it),l=lvl(s),a=alts(it),unavailable=it.st==="out",low=it.st==="low";
+ const showAlts=unavailable||low||openAlts[it.id];
+ return `<div class="card"><div class="prod"><div class="emo">${EMO[it.cat]}</div>${ring(s,72)}
+  <div class="info"><h3>${esc(it.name)}</h3>
+  <div class="meta">${esc(STORES[it.store].n)} · ${etaOf(it)} min delivery · ₹${it.price}</div>
+  <div style="margin-top:6px"><span class="tag ${unavailable?"lo":low?"md":"hi"}">${statusText(it)}</span>
+  <span class="meta">${ph?"24/7 pharmacy prototype routing":stLabel(it)}</span>
+  <button class="link" onclick="why(${it.id},1)">Why this score?</button></div>
+  ${ph?`<div class="meta" style="margin-top:4px">Prototype feature: pharmacy availability is simulated for the case demo; it is not a competition-specified real-world guarantee.</div>`:""}</div>
+  <button class="btn" ${unavailable?"disabled":""} aria-disabled="${unavailable}" onclick="add(${it.id})">${unavailable?"Unavailable":"Add to cart"}</button></div>
+  ${low?`<div class="status-note">⚠️ Limited availability — consider an alternative before ordering.</div>`:""}
+  ${unavailable?`<div class="warn">🚫 Unavailable. Normal ordering is blocked. Choose an available alternative below.</div>`:""}
+  ${!unavailable&&!low&&a.length?`<div style="margin-top:10px"><button class="link" onclick="openAlts[${it.id}]=!openAlts[${it.id}];render()">${openAlts[it.id]?"Hide":"See"} alternatives</button></div>`:""}
+  ${showAlts&&a.length?`<div class="alts"><b>Smart Alternatives</b>${a.map(o=>{const os=sc(o),same=o.name===it.name;return `<div class="alt">${ring(os,48)}<div class="info"><b>${esc(o.name)}</b><div class="meta">${same?"Same product, other store":"Alternative product"} · ${esc(STORES[o.store].n)} · ${STORES[o.store].eta} min · ₹${o.price}</div></div><button class="btn ghost" onclick="replaceWithAlternative(${o.id},${it.id})">Choose instead</button></div>`}).join("")}</div>`:""}
+  ${showAlts&&!a.length?`<div class="meta" style="margin-top:8px">No available alternatives right now.</div>`:""}
+ </div>`;
+}
+
+function customer(){
+ const g=groups();
+ return `<div class="grid"><div class="stack">
+ ${howItWorks()}${businessImpact()}${trackerCard()}${reviewNudge()}${route(true)}<details class="card"><summary>Why Nova Cart needs this</summary><div class="stats">
+  <div><b>6% → 11%</b>cancellation rate</div><div><b>35%</b>of cancellations: item unavailable</div><div><b>41% → 27%</b>repeat purchase rate</div><div><b>39%</b>of stores find inventory upkeep too much work</div></div></details>
+ <div><form class="search" onsubmit="event.preventDefault();q=document.getElementById('q').value;render()"><input id="q" value="${esc(q)}" placeholder="Search milk, eggs, bread, biscuits" aria-label="Search products"><button class="btn" type="submit">Search</button></form>
+ <div class="depts"><button class="dp" aria-pressed="${dept==="all"}" onclick="dept='all';render()">All<small>620 stores</small></button>${Object.entries(DEPTS).map(([k,d])=>`<button class="dp" aria-pressed="${dept===k}" onclick="dept='${k}';render()">${d.e} ${d.n}<small>${d.c} stores</small></button>`).join("")}</div>
+ <div class="meta" style="margin-bottom:8px"><button class="link" onclick="setMode('n')">Browse all 620 local stores</button></div>
+ <div class="chips">${EXAMPLES.filter(e=>dept==="all"||e.d===dept).map(e=>`<button onclick="q='${e.q}';dept='${e.d}';render()">${e.q}</button>`).join("")}</div></div>
+ ${g.length?g.map(prodCard).join(""):`<div class="card meta">${q?"No matches here. Try another word or department.":"Search for a product to see how confident we are that it's available."}</div>`}
+ </div>${cartPanel()}</div>`;
+}
+const isPh=i=>DEPT_OF[i.cat]==="pharmacy";
+const csc=i=>isPh(i)?Math.max(85,sc(i)):sc(i);
+const etaOf=i=>STORES[i.store].eta+(isPh(i)&&sc(i)<50?8:0);
+const cdesc=c=>c.type==="flat"?`₹${c.val} off above ₹${c.min}`:c.type==="pct"?`${c.val}% off, up to ₹${c.cap}, min ₹${c.min}`:c.type==="ship"?"Free delivery on any order":c.type==="combo"?`₹${c.val} off + free delivery above ₹${c.min}`:`₹${c.val} off when you accept a SmartStock swap`;
+function valid(c,sub){if(sub<c.min)return`Add ₹${c.min-sub} more`;if(c.type==="swap"&&!cart.some(x=>x.from))return"Needs a swapped-in item";return true}
+function calc(){
+ const sub=cart.reduce((a,c)=>a+byId(c.id).price,0);let fee=cart.length?FEE:0,disc=0,ok=false;
+ const c=wallet.find(w=>w.id===applied);
+ if(c&&valid(c,sub)===true){ok=true;if(c.type==="ship")fee=0;else if(c.type==="combo"){fee=0;disc=Math.min(c.val,sub)}else if(c.type==="pct")disc=Math.min(c.cap,Math.round(sub*c.val/100));else disc=Math.min(c.val,sub)}
+ return{sub,fee,disc,ok,c,saved:disc+(ok&&(c.type==="ship"||c.type==="combo")?FEE:0),total:sub+fee-disc}
+}
+function route(compact){
+ const n=Math.min(orders,5);let h="";
+ for(let i=1;i<=5;i++)h+=`${i>1?`<div class="leg ${n>=i?"done":""}"></div>`:""}<div class="stop ${n>=i?"done":""} ${i>=3?"gift":""}">${i===5?"🎁":i}</div>`;
+ const msg=n>=3?"Lucky draw unlocked!":`${3-n} more order${3-n>1?"s":""} to unlock your lucky draw. Guaranteed by order 5.`;
+ return `<div class="card route-card"><b>${compact?"Reward route":"Orders this round"}: ${n}/5</b><div class="route">${h}</div><div class="meta">${msg}${n>=3?` <button class="link" onclick="setMode('r')">Spin now</button>`:""}</div></div>`;
+}
+function cartPanel(){
+ const t=calc();
+ return `<aside class="card"><h2 style="font-size:20px">Your cart</h2>
+ ${cart.length?cart.map((c,i)=>{const it=byId(c.id),s=csc(it);return `<div class="row" style="padding:8px 0;border-top:1px solid var(--line)"><div><b>${EMO[it.cat]} ${it.name}</b>${c.from?` <span class="tag hi">Swapped in</span>`:""}<div class="meta">${STORES[it.store].n} · <span class="${s<50?"neg":""}">${s}% confidence</span></div></div><div>₹${it.price}<br><button class="link" onclick="cart.splice(${i},1);render()">Remove</button></div></div>`}).join("")+
+ `<details class="tkt" ${applied?"open":""}><summary>🎟️ Coupons (${wallet.length})</summary>${wallet.length?wallet.map(w=>{const v=valid(w,t.sub),on=applied===w.id;return `<div class="cp"><div><b>${w.code}</b><div class="meta">${cdesc(w)}${v!==true?` · <span class="neg">${v}</span>`:""}</div></div><button class="btn ${on?"ghost":""}" ${v!==true&&!on?"disabled":""} onclick="applied=${on?"null":w.id};render()">${on?"Remove":"Apply"}</button></div>`}).join(""):`<p class="meta">No coupons yet. Win some in the lucky draw.</p>`}</details>
+ <div class="row meta" style="margin-top:12px"><span>Subtotal</span><span>₹${t.sub}</span></div>
+ <div class="row meta"><span>Delivery</span><span>${t.fee?"₹"+t.fee:"Free"}</span></div>
+ ${t.ok?`<div class="row pos"><span>${t.c.code}</span><b>${t.disc?"−₹"+t.disc:"Free delivery"}</b></div>`:""}
+ <div class="row" style="margin:10px 0"><b>Total</b><b style="font-size:20px">₹${t.total}</b></div><button class="btn" style="width:100%" onclick="checkout()">Place order</button>`:`<p class="meta">Your cart is empty.</p>`}</aside>`;
+}
+function add(id,from){
+ const it=byId(id);if(!it||!canOrder(it)){toast("This product is unavailable.");return}
+ cart.push({id,from:from||null});toast(it.name+" added to cart");render()
+}
+function replaceWithAlternative(id,from){
+ const it=byId(id);if(!it||!canOrder(it)){toast("That alternative is unavailable.");return}
+ const idx=cart.findIndex(c=>c.id===from);if(idx>=0)cart[idx]={id,from};else cart.push({id,from});
+ toast(it.name+" selected as the alternative");render()
+}
+function checkout(){
+ if(!cart.length)return;
+ const t=calc(),swaps=cart.filter(c=>c.from).length;
+ prevented+=swaps;
+ cart.forEach(c=>{const it=byId(c.id);it.orders+=1;if(c.from)byId(c.from).subs+=1});
+ if(t.ok)wallet=wallet.filter(w=>w.id!==applied);
+ applied=null;orders=Math.min(5,orders+1);
+ const n=cart.length;lastOrder={names:cart.map(c=>byId(c.id).name),msg:false,vid:false,sub:t.sub,paid:t.total,feePaid:t.fee,eta:Math.max(...cart.map(c=>etaOf(byId(c.id)))),delay:0,rider:RIDERS[seq++%RIDERS.length],stores:[...new Set(cart.map(c=>STORES[byId(c.id).store].n))]};cart=[];
+ dlg.innerHTML=`<h2>Order confirmed ✅</h2><p>${n} item${n>1?"s":""} on the way. <b>+${latestPoints} reward points</b> earned.${t.saved?` You saved <b>₹${t.saved}</b> with ${t.c.code}.`:""}</p>
+ <p><b>${swaps?"SmartStock helped prevent a possible unavailable-item cancellation.":"Every item was checked for availability before you ordered."}</b></p>
+ <p class="meta">Late delivery guarantee: 5+ min late refunds your delivery fee, 10+ min adds 10% off items, 20+ min adds 25% off. If it arrives on time, you can tip from ₹10 or offer your rider a drink.</p>
+ <p class="meta">${swaps?"The swap is logged as a substitution, so the original item's score drops and the store sees it on its dashboard. ":""}${orders>=3?"Your lucky draw is unlocked.":`${3-orders} more order${3-orders>1?"s":""} to unlock your lucky draw.`}</p>
+ ${orders>=3?`<button class="btn" onclick="dlg.close();setMode('r')">Spin the wheel</button> `:""}<button class="btn ghost" onclick="dlg.close();setMode('r')">Review &amp; earn</button> <button class="btn ghost" onclick="dlg.close()">Done</button>`;
+ dlg.showModal();render();
+}
+function spin(){
+ if(orders<3||spinning)return;spinning=true;lastWin=null;
+ const k=Math.floor(Math.random()*6),center=k*60+30;
+ rot+=360*5+(((360-center)-(rot%360))+360)%360;
+ document.getElementById("wheel").style.transform=`rotate(${rot}deg)`;
+ document.getElementById("spinbtn").disabled=true;
+ setTimeout(()=>{spinning=false;const p=PRIZES[k];wallet.push({...p,id:Date.now()});lastWin=p;orders=0;confetti();toast("Coupon added to your wallet");render()},4300);
+}
+function confetti(){for(let i=0;i<50;i++){const d=document.createElement("i");d.className="cf";d.style.cssText=`left:${Math.random()*100}vw;background:hsl(${Math.random()*360} 90% 60%);animation-delay:${Math.random()*.4}s;--x:${Math.random()*160-80}px`;document.body.appendChild(d);setTimeout(()=>d.remove(),3000)}}
+function refund(o){
+ const d=o.delay;if(d<5)return{amt:0,txt:"On time. Your price drops automatically if delivery runs late."};
+ const pct=d>=20?25:d>=10?10:0,cap=d>=20?100:40,amt=Math.min(o.paid,o.feePaid+Math.min(cap,Math.round(o.sub*pct/100)));
+ return{amt,txt:pct?`${d} min late: delivery fee refunded + ${pct}% off items`:`${d} min late: delivery fee refunded`};
+}
+function delay(n){if(!lastOrder)return;lastOrder.delay=n===0?0:lastOrder.delay+n;render()}
+const RIDERS=[{n:"Ravi Kumar",v:"Bike · AP 16 EX 4021",p:"+91 90000 11001",r:"4.8"},{n:"Anitha Devi",v:"Scooter · AP 39 FD 7710",p:"+91 90000 11002",r:"4.9"},{n:"Suresh Babu",v:"Bike · AP 31 GH 2284",p:"+91 90000 11003",r:"4.7"},{n:"Mahesh Reddy",v:"Scooter · AP 37 KL 9053",p:"+91 90000 11004",r:"4.8"}];
+let seq=0;
+function riderCard(o,st){
+ const r=o.rider,tel=r.p.replace(/\s/g,"");
+ return `<div class="card"><div class="row"><b>Delivery partner</b><span class="tag hi">${o.delivered?"Delivered":"Assigned"}</span></div>
+ <div class="prod" style="margin-top:8px"><div class="emo">🛵</div><div class="info"><b>${r.n}</b> <span class="meta">★ ${r.r}</span><div class="meta">${r.v}</div><div class="meta">${r.p}</div></div><a class="btn" href="tel:${tel}">📞 Call</a><a class="btn ghost" href="sms:${tel}">💬 Message</a></div>
+ ${st?`<div class="meta" style="margin-top:8px">Picking up from: ${o.stores.join(", ")}<br>Items: ${o.names.join(", ")}</div>`:""}
+ <div class="meta" style="margin-top:6px">Demo number. A live version would mask both phone numbers behind Nova Cart.</div></div>`;
+}
+function liveDelivery(){
+ const o=lastOrder;
+ if(!o)return `<div class="card" style="margin-bottom:16px"><h2 style="font-size:20px">Live deliveries</h2><p class="meta">No active deliveries yet. Place an order in the Customer tab and the delivery partner's contact will appear here.</p></div>`;
+ const late=o.delay>=5;
+ return `<div class="stack" style="margin-bottom:16px"><div class="card route-card"><b>Live delivery</b> <span class="tag ${late?"lo":"hi"}">${o.delivered?"Delivered":late?"Delayed +"+o.delay+" min":"On time"}</span><div class="meta">${o.names.join(", ")} · promised ${o.eta} min</div></div>${riderCard(o,true)}</div>`;
+}
+const GIFTS=[["water","💧 Glass of water"],["tea","☕ Tea or coffee"],["juice","🥤 Cold drink or juice"],["lassi","🥛 Buttermilk or lassi"],["coconut","🥥 Coconut water"]];
+function deliver(){if(!lastOrder)return;Object.assign(lastOrder,{delivered:true,tipAmt:0,gifts:[],thanked:false});render()}
+function setTip(n){lastOrder.tipAmt=lastOrder.tipAmt===n?0:n;render()}
+function customTip(v){const n=parseInt(v,10);if(v&&!(n>=10))toast("Minimum tip is ₹10");lastOrder.tipAmt=n>=10?n:0;render()}
+function toggleGift(g){const a=lastOrder.gifts,i=a.indexOf(g);i<0?a.push(g):a.splice(i,1);render()}
+function sendThanks(){const o=lastOrder;if(!o.tipAmt&&!o.gifts.length){toast("Choose a tip (from ₹10) or a drink");return}o.thanked=true;toast("Thanks sent to your delivery partner");render()}
+function trackerCard(){return trackerBase()+(lastOrder?riderCard(lastOrder,false):"")}
+function trackerBase(){
+ const o=lastOrder;if(!o)return"";
+ const r=refund(o),late=o.delay>=5,final=o.paid-r.amt;
+ if(o.delivered&&late)return `<div class="card route-card" style="border-left-color:var(--lo)"><div class="row"><b>📦 Delivered ${o.delay} min late</b><span class="tag lo">Late</span></div><div class="meta" style="margin-top:4px">${r.txt}. Your final price is <b>₹${final}</b> (−₹${r.amt}). Tips are offered on on-time deliveries.</div></div>`;
+ if(o.delivered){
+  if(o.thanked)return `<div class="card route-card" style="border-left-color:var(--hi)"><b>💛 Thank you!</b><div class="meta" style="margin-top:4px">${o.tipAmt?`Tip of ₹${o.tipAmt} sent`:"No tip"}${o.gifts.length?`${o.tipAmt?" and a":"A"} gesture for your delivery partner: ${o.gifts.map(g=>GIFTS.find(x=>x[0]===g)[1]).join(", ")}`:""}. Final total ₹${final+o.tipAmt}.</div></div>`;
+  return `<div class="card route-card" style="border-left-color:var(--hi)"><div class="row"><b>✅ Delivered on time</b><span class="tag hi">On time</span></div>
+  <div class="meta" style="margin:4px 0">It arrived in ${o.eta+o.delay} min as promised. Want to thank your delivery partner?</div>
+  <b>Add a tip</b><div class="chips" style="margin:6px 0">${[10,20,30,50].map(n=>`<button class="${o.tipAmt===n?"sel":""}" onclick="setTip(${n})">₹${n}</button>`).join("")}<input class="tipin" type="number" min="10" step="5" placeholder="Other, from ₹10" aria-label="Custom tip, minimum 10 rupees" value="${o.tipAmt&&![10,20,30,50].includes(o.tipAmt)?o.tipAmt:""}" onchange="customTip(this.value)"></div>
+  <b>Or offer a drink</b><div class="chips" style="margin:6px 0">${GIFTS.map(g=>`<button class="${o.gifts.includes(g[0])?"sel":""}" onclick="toggleGift('${g[0]}')">${g[1]}</button>`).join("")}</div>
+  <button class="btn" onclick="sendThanks()">Send thanks${o.tipAmt?` · ₹${o.tipAmt}`:""}</button></div>`;
+ }
+ return `<div class="card route-card" style="border-left-color:${late?"var(--lo)":"var(--hi)"}"><div class="row"><b>🛵 Your order is on the way</b><span class="tag ${late?"lo":"hi"}">${late?"Delayed":"On time"}</span></div>
+ <div class="meta" style="margin:4px 0">Promised: ${o.eta} min · Now: ${o.eta+o.delay} min${o.delay?` (+${o.delay})`:""}</div>
+ <div class="row"><span>Order total ₹${o.paid}</span><b class="${r.amt?"pos":""}">${r.amt?`Price now ₹${final} (−₹${r.amt})`:`You pay ₹${o.paid}`}</b></div>
+ <div class="meta">${r.txt}</div>
+ <div style="margin-top:6px"><button class="link" onclick="delay(5)">Demo: add 5 min delay</button> · <button class="link" onclick="delay(0)">Reset</button> · <button class="link" onclick="deliver()">Demo: mark delivered</button></div></div>`;
+}
+function reviewNudge(){
+ const o=lastOrder;if(!o||(o.msg&&o.vid))return"";
+ return `<div class="card route-card"><b>Review your last order and earn a reward</b><div class="meta">Message: ₹15 off · Promo video: ₹40 off + free delivery, on your next order. <button class="link" onclick="setMode('r')">Review now</button></div></div>`;
+}
+function setStars(n){stars=n;document.querySelectorAll(".star").forEach((b,i)=>b.classList.toggle("on",i<n))}
+function submitMsg(){
+ const t=document.getElementById("rtext").value.trim();
+ if(!stars){toast("Pick a star rating first");return}
+ if(t.length<20){toast(`Write at least 20 characters (${t.length}/20)`);return}
+ lastOrder.msg=true;stars=0;
+ wallet.push({id:Date.now(),code:"REVIEW15",type:"flat",val:15,min:99});
+ toast("Review sent. REVIEW15 added to your wallet");render();
+}
+function pickVideo(inp){
+ const f=inp.files[0],m=document.getElementById("vmsg"),b=document.getElementById("vbtn"),v=document.getElementById("vprev");
+ vidOk=false;b.disabled=true;v.style.display="none";
+ if(!f)return;
+ if(!f.type.startsWith("video/")){m.textContent="Choose a video file.";return}
+ if(f.size>50*1048576){m.textContent="Video must be under 50 MB.";return}
+ if(vurl)URL.revokeObjectURL(vurl);vurl=URL.createObjectURL(f);
+ v.src=vurl;v.style.display="block";m.textContent="Checking video…";
+ v.onloadedmetadata=()=>{const d=v.duration;if(d<5||d>60){m.textContent=`Video is ${Math.round(d)}s. Keep it between 5 and 60 seconds.`;return}vidOk=true;b.disabled=false;m.textContent=`Ready: ${Math.round(d)}s clip.`};
+ v.onerror=()=>{m.textContent="This video can't be played. Try an MP4."};
+}
+function submitVideo(){
+ if(!vidOk)return;
+ lastOrder.vid=true;vidOk=false;
+ wallet.push({id:Date.now(),code:"VIDEO40",type:"combo",val:40,min:149});
+ toast("Video submitted. VIDEO40 added to your wallet");render();
+}
+function reviewCard(){
+ const o=lastOrder;
+ if(!o)return `<div class="card"><h2 style="font-size:20px">Review &amp; earn</h2><p class="meta">Place an order, then review it with a message (₹15 off) or a short promo video (₹40 off + free delivery) on your next order.</p></div>`;
+ return `<div class="card"><h2 style="font-size:20px">Review &amp; earn</h2><p class="meta">Reviewing your last order: ${o.names.join(", ")}. Rewards go to your wallet for your next order.</p>
+ <div class="rv"><div class="opt"><h3>Message review</h3><span class="reward">₹15 off</span>
+ ${o.msg?`<p class="done">✅ Review sent. REVIEW15 is in your wallet.</p>`:`<div role="group" aria-label="Star rating">${[1,2,3,4,5].map(n=>`<button class="star ${stars>=n?"on":""}" aria-label="${n} star${n>1?"s":""}" onclick="setStars(${n})">★</button>`).join("")}</div>
+ <textarea id="rtext" aria-label="Your review" placeholder="Was everything available as promised? Tell others (20+ characters)"></textarea>
+ <button class="btn" onclick="submitMsg()">Send review</button>`}</div>
+ <div class="opt"><h3>Promo video</h3><span class="reward">₹40 off + free delivery</span>
+ ${o.vid?`<p class="done">✅ Video submitted. VIDEO40 is in your wallet.</p>`:`<p class="meta" style="margin:6px 0">Show the product or your delivery. 5 to 60 seconds, under 50 MB.</p>
+ <input type="file" accept="video/*" aria-label="Choose a promo video" onchange="pickVideo(this)">
+ <video id="vprev" controls playsinline></video><div class="meta" id="vmsg" aria-live="polite"></div>
+ <button class="btn" id="vbtn" style="margin-top:8px" onclick="submitVideo()" disabled>Submit video</button>`}</div></div>
+ <p class="meta" style="margin-top:10px">Prototype note: the video stays on your device. A live version would upload it for moderation before issuing the reward.</p></div>`;
+}
+function rewards(){
+ const ready=orders>=3;
+ return `<div class="grid"><div class="stack">${route(false)}
+  <div class="card"><h2 style="font-size:20px">Rewards & Returning Customer Value</h2>
+   <div class="business-grid"><div class="kpi"><b>${rewardPoints}</b><small>Current points</small></div><div class="kpi"><b>+${latestPoints}</b><small>Latest order points</small></div><div class="kpi"><b>${totalOrders}</b><small>Total simulated orders</small></div><div class="kpi"><b>${repeatBonus}</b><small>Returning-customer bonus</small></div></div>
+   <p class="meta" style="margin-top:10px">Prototype rule: first order earns +10 points; later purchases earn an additional +20 repeat bonus.</p>
+  </div>${reviewCard()}
+ <div class="card" style="text-align:center"><h2 style="font-size:22px">Lucky draw</h2><p class="meta">Every order moves you along the route. Spin once you reach order 3. Every spin wins a coupon.</p>
+ <div class="wheelbox"><div class="pointer"></div><div class="wheel" id="wheel" style="transform:rotate(${rot}deg)">${PRIZES.map((p,i)=>`<span style="transform:rotate(${i*60+30}deg) translateY(-90px)${i===2||i===3?" rotate(180deg)":""}">${p.t}</span>`).join("")}</div><div class="hub">🎁</div></div>
+ ${lastWin?`<div class="win">🎉 You won ${lastWin.t}! ${lastWin.code} is in your wallet.</div>`:""}
+ <button class="btn" id="spinbtn" onclick="spin()" ${ready?"":"disabled"}>${ready?"Spin the wheel":`Unlocks in ${3-orders} order${3-orders>1?"s":""}`}</button>
+ <div style="margin-top:10px"><button class="link" onclick="orders=Math.min(5,orders+1);render()">Demo: count one more order</button></div></div></div>
+ <aside class="card"><h2 style="font-size:20px">Coupon wallet</h2>${wallet.length?wallet.map(w=>`<div class="tkt"><b>${w.code}</b>${applied===w.id?` <span class="tag hi">Applied</span>`:""}<div class="meta">${cdesc(w)}</div></div>`).join(""):`<p class="meta">Empty. Place orders to unlock the lucky draw.</p>`}<p class="meta" style="margin-top:12px">Apply a coupon from your cart. SWAPSAVE rewards you for choosing a SmartStock alternative.</p></aside></div>`;
+}
+/* ---------- Store ---------- */
+function store(){return liveDelivery()+storeMain()+businessImpact()+testingCard()+pharmDesk()}
+function storeMain(){
+ const mine=items.filter(i=>i.store===MY),need=mine.filter(i=>sc(i)<50);
+ const avg=Math.round(mine.reduce((a,i)=>a+sc(i),0)/mine.length);
+ return `<div class="tiles"><div class="card tile"><b>${avg}%</b>Average inventory health</div><div class="card tile"><b style="color:${need.length?"var(--lo)":"var(--hi)"}">${need.length}</b>Need your attention</div><div class="card tile"><b>${prevented}</b>Failed orders prevented</div></div>
+ <div class="card" style="margin-bottom:16px"><h2 style="font-size:20px">Needs Your Attention</h2>
+ <p class="meta" style="margin:4px 0 8px">Change Available → Low Stock → Unavailable here. The same item state is immediately used by Customer Mode.</p>
+ ${need.length?need.map(i=>`<div style="padding:10px 0;border-top:1px solid var(--line)"><div class="row"><div><b>${i.name}</b><div class="meta">Current confidence: <b class="neg">${sc(i)}%</b> · last updated ${i.hrs}h ago</div></div><button class="btn" onclick="editing=${i.id};render()">Update Stock</button></div>${picker(i)}</div>`).join(""):`<p style="color:var(--hi);font-weight:600">All clear. Nothing needs you right now.</p>`}</div>
+ <div class="card"><h2 style="font-size:20px">Inventory Health</h2><label class="meta">Viewing store <select onchange="MY=this.value;editing=null;render()">${Object.keys(STORES).map(k=>`<option value="${k}" ${k===MY?"selected":""}>${STORES[k].n}</option>`).join("")}</select></label>
+ ${mine.map(i=>{const s=sc(i),l=lvl(s);return `<div style="border-top:1px solid var(--line)"><div class="inv" style="border:0"><b>${EMO[i.cat]} ${i.name}</b><div class="bar" aria-hidden="true"><i style="width:${s}%;background:${col(l)}"></i></div><span><b>${s}%</b> <span class="tag ${l}">${storeName(s)}</span></span><button class="link" onclick="why(${i.id})">Why?</button></div>${editing===i.id&&sc(i)>=50?picker(i):""}${editing!==i.id?`<button class="link" style="margin:0 0 8px" onclick="editing=${i.id};render()">Update stock</button>`:""}</div>`}).join("")}</div>`;
+}
+function picker(i){
+ if(editing!==i.id)return"";
+ return `<div class="picker" role="group" aria-label="Set stock for ${i.name}">${[["available","Available"],["low","Low Stock"],["out","Out of Stock"]].map(o=>`<button onclick="setStock(${i.id},'${o[0]}')">${o[1]}</button>`).join("")}<button class="link" onclick="editing=null;render()">Cancel</button></div>`;
+}
+function setStock(id,st){
+ const i=byId(id),b=sc(i);i.st=st;i.hrs=0;editing=null;
+ toast(`${i.name}: ${stLabel({st})}. Customer Mode is updated.`);render();
+}
+
+/* ---------- Shared ---------- */
+function why(id,c){
+ const i=byId(id),r=score(i);if(c&&isPh(i)&&r.s<85){r.parts.push(["Nova pharmacy guarantee (best partner pharmacy)",85-r.s]);r.s=85}const l=lvl(r.s);
+ dlg.innerHTML=`<h2>${i.name}</h2><p style="margin:4px 0 12px"><span class="tag ${l}">${r.s}% · ${lvlName(r.s)}</span></p>
+ <b>Why this score?</b><table>${r.parts.map(p=>`<tr><td>${p[0]}</td><td class="${p[1]>=0?"pos":"neg"}">${p[1]>0?"+":""}${p[1]}</td></tr>`).join("")}<tr><td><b>Total (0–100)</b></td><td>${r.s}${i.st==="out"?" (capped: out of stock)":""}</td></tr></table>
+ <p class="meta">Rule-based prototype: stock status sets the base, then recency, order activity, cancellations and substitutions adjust it. 80+ is High, 50–79 Medium, below 50 Low.</p>
+ <button class="btn" onclick="dlg.close()">Close</button>`;
+ dlg.showModal();
+}
+function toast(m){const t=document.getElementById("toast");t.textContent=m;t.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("on"),2500)}
+function setMode(m){if(role!=="store"&&m==="s")return;mode=m;editing=null;render()}
+function setRole(r){role=r;if(r!=="store"&&mode==="s")mode="c";render()}
+function pharmDesk(){
+ const ph=items.filter(isPh).sort((a,b)=>sc(a)-sc(b)),low=ph.filter(i=>sc(i)<50).length,nf=NET.filter(x=>x.dept==="pharmacy"&&x.h<50).length;
+ return `<div class="card" style="margin-top:16px"><h2 style="font-size:20px">Company pharmacy desk</h2>
+ <p class="meta" style="margin:4px 0 8px">24/7 pharmacy desk routing is simulated for this prototype. Stock can still be marked unavailable; the desk provides a restock workflow. ${low?`<b class="neg">${low} item${low>1?"s":""} need a stock update.</b>`:"All pharmacy items are healthy."} ${nf} of 120 local pharmacy stores are flagged.</p>
+ <button class="btn" onclick="restockPharm()">Restock all low pharmacy items</button>
+ ${ph.map(i=>{const s=sc(i),l=lvl(s);return `<div style="border-top:1px solid var(--line);margin-top:10px"><div class="inv" style="border:0"><div><b>${EMO[i.cat]} ${i.name}</b><div class="meta">${STORES[i.store].n}</div></div><div class="bar" aria-hidden="true"><i style="width:${s}%;background:${col(l)}"></i></div><span><b>${s}%</b> <span class="tag ${l}">${storeName(s)}</span></span><button class="btn ghost" style="padding:6px 12px" onclick="editing=${i.id};render()">Update stock</button></div>${editing===i.id?picker(i):""}</div>`}).join("")}</div>`;
+}
+function restockPharm(){
+ let n=0;items.filter(i=>isPh(i)&&sc(i)<50).forEach(i=>{i.st="available";i.hrs=0;n++});
+ NET.filter(x=>x.dept==="pharmacy"&&x.h<50).forEach(x=>{x.h=78;n++});
+ toast(n?`Restocked ${n} pharmacy record${n>1?"s":""}`:"Nothing to restock");render();
+}
+function network(){
+ const f=NET.filter(x=>(svc.city==="all"||x.city===svc.city)&&(svc.dept==="all"||x.dept===svc.dept)&&(!svc.q||(x.name+" "+x.area).toLowerCase().includes(svc.q.toLowerCase())));
+ const avg=a=>Math.round(a.reduce((t,x)=>t+x.h,0)/a.length);
+ return `<div class="card status-note" style="margin-bottom:12px">620 local stores across Vijayawada, Visakhapatnam and Guntur are prototype/case data, not verified real stores.</div><div class="tiles"><div class="card tile"><b>${NET.length}</b>Local stores</div><div class="card tile"><b>3</b>Cities</div><div class="card tile"><b>${avg(NET)}%</b>Network inventory health</div>${role==="store"?`<div class="card tile"><b style="color:var(--lo)">${NET.filter(x=>x.h<50).length}</b>Stores flagged for attention</div>`:`<div class="card tile"><b>${Math.round(NET.reduce((t,x)=>t+x.eta,0)/NET.length)} min</b>Average delivery time</div>`}</div>
+ <div class="card" style="margin-bottom:16px"><h2 style="font-size:20px">Stores by category</h2>${Object.entries(DEPTS).map(([k,d])=>{const a=NET.filter(x=>x.dept===k),h=avg(a);return `<div class="inv"><b>${d.e} ${d.n}</b><div class="bar" aria-hidden="true"><i style="width:${d.c/620*100}%;background:var(--brand)"></i></div><span><b>${d.c}</b> stores</span><span class="meta">${h}% avg health</span></div>`}).join("")}</div>
+ <div class="card"><h2 style="font-size:20px">Browse stores</h2><div class="f">
+ <select aria-label="City" onchange="svc.city=this.value;svc.lim=12;render()"><option value="all">All cities</option>${Object.keys(AREAS).map(c=>`<option ${svc.city===c?"selected":""}>${c}</option>`).join("")}</select>
+ <select aria-label="Category" onchange="svc.dept=this.value;svc.lim=12;render()"><option value="all">All categories</option>${Object.entries(DEPTS).map(([k,d])=>`<option value="${k}" ${svc.dept===k?"selected":""}>${d.n}</option>`).join("")}</select>
+ <input aria-label="Search stores" placeholder="Search name or area" value="${esc(svc.q)}" onchange="svc.q=this.value;svc.lim=12;render()"></div>
+ <p class="meta">${f.length} store${f.length===1?"":"s"}</p>
+ ${f.slice(0,svc.lim).map(x=>{const l=lvl(x.h);return `<div class="inv"><div><b>${DEPTS[x.dept].e} ${x.name}</b><div class="meta">${x.area}, ${x.city} · ${x.eta} min</div></div><div class="bar" aria-hidden="true"><i style="width:${x.h}%;background:${col(l)}"></i></div><span><b>${x.h}%</b> <span class="tag ${l}">${storeName(x.h)}</span></span><span class="meta">${DEPTS[x.dept].n}</span></div>`}).join("")}
+ ${f.length>svc.lim?`<button class="btn ghost" style="margin-top:10px" onclick="svc.lim+=12;render()">Show 12 more</button>`:""}</div>`;
+}
+function render(){
+ ["c","n","r","s"].forEach(m=>document.getElementById("t-"+m).setAttribute("aria-selected",mode===m));
+ document.getElementById("t-s").style.display=role==="store"?"":"none";const rs=document.getElementById("role");if(rs)rs.value=role;
+ document.getElementById("prev").textContent=prevented+" cancellation"+(prevented===1?"":"s")+" prevented";
+ document.getElementById("app").innerHTML={c:customer,n:network,r:rewards,s:store}[mode]();
+}
+const dlg=document.getElementById("dlg");
+render();
+</script></body></html>
